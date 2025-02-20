@@ -42,7 +42,7 @@ async def check_cloudflare(page):
 
 async def scrape_reviews(page, company_name, company_url, sheet):
     await asyncio.sleep(1)
-    review_tab = await page.select("header div[data-testid='reviews-tab'] a div")
+    review_tab = await page.select("header div[data-testid='reviews-tab'] a span")
     await review_tab.click()
     await asyncio.sleep(1)
     show_all_reviews = await page.select("main div[data-testid='more-review-options'] > ul > li:first-of-type a div")
@@ -77,7 +77,7 @@ async def scrape_reviews(page, company_name, company_url, sheet):
 async def main():
     alphabetical_page_start_number = 0
     numerical_page_start_number = 0
-    section_start_number = 0
+    section_start_number = 18
 
     browser = await uc.start()
     page = await browser.get("https://www.indeed.com/companies/browse-companies")
@@ -90,7 +90,6 @@ async def main():
     numerical_page_links = await page.select_all("main > div > nav:last-of-type ul[data-cy='numeric-pagination'] > li")
     alphabetical_page_count = len(alphabetical_page_links)
     numerical_page_count = len(numerical_page_links)
-    print (f"count: {alphabetical_page_count}, {numerical_page_count}")
     
     i = alphabetical_page_start_number
     j = numerical_page_start_number
@@ -107,7 +106,6 @@ async def main():
 
             company_list = await page.select_all("main > div > section > ul[data-cy='companies-list'] > li")
             company_count = len(company_list)
-            print (f"company count: {company_count}")
             sheet = await setup_google_sheets()
             
             while k < company_count:
@@ -125,9 +123,12 @@ async def main():
                     await scrape_reviews(company_page, company_name, company_url, sheet)
 
                 k = k + 1
+            k = 0
             j = j + 1
+        j = 0
         i = i + 1
-                
+    i = 0
+
     await browser.close()
 
 if __name__ == "__main__":
